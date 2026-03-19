@@ -3,32 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>黄大厨炒制 GIF 生成器</title>
+    <title>黄大厨炒制生成器 - 低门槛UGC工具</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
     <style>
-        :root { --primary: #ff9800; --bg: #f5f5f5; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .container { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 500px; width: 100%; text-align: center; }
-        h1 { color: #333; margin-bottom: 0.5rem; }
-        .preview-area { position: relative; width: 256px; height: 256px; background: #eee; margin: 20px auto; border: 2px dashed #ccc; border-radius: 10px; overflow: hidden; }
-        canvas { width: 100%; height: 100%; display: block; }
-        .controls { display: grid; gap: 15px; text-align: left; margin-top: 20px; }
+        :root { --primary: #e67e22; --bg: #fdf6e3; }
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; color: #5d4037; }
+        .container { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); max-width: 450px; width: 100%; text-align: center; border: 4px solid #f1c40f; }
+        h1 { margin-top: 0; color: #d35400; font-size: 1.5rem; }
+        .preview-area { position: relative; width: 256px; height: 256px; background: #fff; margin: 15px auto; border-radius: 15px; overflow: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+        canvas { width: 100%; height: 100%; }
+        .quote { font-style: italic; color: #7f8c8d; min-height: 1.2rem; margin-bottom: 10px; font-size: 0.9rem; }
+        .controls { display: grid; gap: 12px; text-align: left; padding: 15px; background: #fff9f0; border-radius: 10px; }
         .control-group { display: flex; align-items: center; justify-content: space-between; }
-        input[type="range"] { width: 60%; accent-color: var(--primary); }
-        .btn-group { margin-top: 20px; display: flex; gap: 10px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .upload-btn { background: var(--primary); color: white; }
-        .export-btn { background: #4caf50; color: white; }
-        .export-btn:disabled { background: #ccc; cursor: not-allowed; }
-        #resultImg { max-width: 100%; margin-top: 20px; border-radius: 10px; display: none; border: 3px solid var(--primary); }
-        .loading { display: none; color: var(--primary); font-weight: bold; }
+        input[type="range"] { width: 65%; accent-color: var(--primary); cursor: pointer; }
+        .btn-group { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        button { padding: 14px; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: all 0.2s; }
+        .upload-btn { background: #3498db; color: white; }
+        .export-btn { background: #27ae60; color: white; box-shadow: 0 4px 0 #1e8449; }
+        .export-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e8449; }
+        .export-btn:disabled { background: #bdc3c7; box-shadow: none; cursor: not-allowed; }
+        #resultImg { max-width: 100%; margin-top: 20px; border-radius: 12px; display: none; border: 4px solid #27ae60; }
+        .loading-mask { display: none; color: #e67e22; font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>👨‍🍳 黄大厨炒制中...</h1>
-    <p style="font-size: 0.9rem; color: #666;">上传Q版图片，自动开启“大厨模式”</p>
+    <h1>🍳 黄大厨特制：万物皆可炒</h1>
+    <div id="quote" class="quote">“这道菜，我加了一点灵魂...”</div>
 
     <div class="preview-area">
         <canvas id="canvas" width="256" height="256"></canvas>
@@ -36,30 +39,32 @@
 
     <div class="controls">
         <div class="control-group">
-            <label>炒菜速度</label>
-            <input type="range" id="speed" min="20" max="100" value="50">
+            <label>🔥 火力(速度)</label>
+            <input type="range" id="speed" min="10" max="150" value="80">
         </div>
         <div class="control-group">
-            <label>图片大小</label>
-            <input type="range" id="scale" min="0.5" max="1.5" step="0.1" value="1.0">
+            <label>📏 大小</label>
+            <input type="range" id="scale" min="0.3" max="1.8" step="0.1" value="1.0">
         </div>
         <div class="control-group">
-            <label>左右翻转</label>
+            <label>↔️ 翻转</label>
             <input type="checkbox" id="flip">
         </div>
     </div>
 
     <div class="btn-group">
         <input type="file" id="upload" accept="image/png, image/jpeg, image/webp" hidden>
-        <button class="upload-btn" onclick="document.getElementById('upload').click()">选择图片</button>
-        <button id="exportBtn" class="export-btn" onclick="exportGif()">导出 GIF</button>
+        <button class="upload-btn" onclick="document.getElementById('upload').click()">第一步：选择食材(上传图片)</button>
+        <button id="exportBtn" class="export-btn" onclick="exportGif()">第二步：猛火炒制(导出GIF)</button>
     </div>
 
-    <div id="loadingText" class="loading">正在猛火炒制 (生成中)...</div>
+    <div id="loadingText" class="loading-mask">🔥 正在收汁中，请稍后...</div>
     
     <div id="resultContainer">
-        <img id="resultImg" alt="右键点击保存" title="右键保存图片或复制链接">
-        <p id="saveHint" style="display:none; font-size: 0.8rem; color: #888; margin-top: 5px;">↑ 长按或右键上方图片保存/复制链接</p>
+        <img id="resultImg">
+        <p id="saveHint" style="display:none; font-size: 0.85rem; color: #27ae60; margin-top: 10px; font-weight: bold;">
+            ✅ 炒制成功！长按或右键上方图片保存
+        </p>
     </div>
 </div>
 
@@ -70,14 +75,23 @@
     const resultImg = document.getElementById('resultImg');
     const loadingText = document.getElementById('loadingText');
     const exportBtn = document.getElementById('exportBtn');
+    const quoteBox = document.getElementById('quote');
     
     let userImg = new Image();
     let isLoaded = false;
     let frame = 0;
-    const totalFrames = 10; // 动效周期帧数
+    const totalFrames = 8; // 减少帧数使动作更干脆
 
-    // 默认图（占位）
-    userImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuW+heS4iuS8oOatp+WbvuWhvzwvdGV4dD48L3N2Zz4=';
+    const quotes = [
+        "“这火候，刚刚好。”",
+        "“这道菜，我加了一点点自信。”",
+        "“看这颜色，这就是生活。”",
+        "“炒菜，最重要是心平气和。”",
+        "“哪怕是Q版，也要炒出锅气。”"
+    ];
+
+    // 初始化占位图
+    userImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuW+heS4iuS8oOatp+WbvuWhvzwvdGV4dD48L3N2Zz4=';
 
     upload.onchange = (e) => {
         const file = e.target.files[0];
@@ -85,30 +99,34 @@
             const reader = new FileReader();
             reader.onload = (event) => {
                 userImg.src = event.target.result;
-                userImg.onload = () => { isLoaded = true; };
+                userImg.onload = () => { 
+                    isLoaded = true;
+                    quoteBox.innerText = quotes[Math.floor(Math.random()*quotes.length)];
+                };
             };
             reader.readAsDataURL(file);
         }
     };
 
-    // 模拟 petpet 的“揉搓/炒制”动效算法
-    function drawFrame(f, targetCtx, isExporting = false) {
-        const speed = document.getElementById('speed').value;
-        const scaleAdjust = document.getElementById('scale').value;
+    function drawFrame(f, targetCtx) {
+        const speedVal = parseInt(document.getElementById('speed').value);
+        const scaleAdjust = parseFloat(document.getElementById('scale').value);
         const flip = document.getElementById('flip').checked;
 
         targetCtx.clearRect(0, 0, 256, 256);
 
-        // 核心参数：根据帧数计算缩放和位移
-        // 模拟向下压和左右轻微晃动
-        const bounce = Math.sin((f / totalFrames) * Math.PI);
-        const compress = bounce * 15; 
-        const shiftX = Math.cos((f / totalFrames) * Math.PI) * 5;
-
-        const w = 180 * scaleAdjust;
-        const h = (180 - compress) * scaleAdjust;
-        const x = (256 - w) / 2 + shiftX;
-        const y = (256 - h) / 2 + compress;
+        // 更加剧烈的“炒菜”动效逻辑
+        // 1. 快速上下跳动 (Bounce)
+        const bounce = Math.abs(Math.sin((f / totalFrames) * Math.PI)) * 20;
+        // 2. 挤压变形 (Squash)
+        const squash = Math.cos((f / totalFrames) * Math.PI) * 15;
+        
+        const baseSize = 180 * scaleAdjust;
+        const w = baseSize + squash;
+        const h = baseSize - bounce;
+        
+        const x = (256 - w) / 2;
+        const y = (256 - h) / 2 + bounce;
 
         targetCtx.save();
         if (flip) {
@@ -116,26 +134,23 @@
             targetCtx.scale(-1, 1);
         }
 
-        // 自动居中与裁剪绘制
         targetCtx.drawImage(userImg, x, y, w, h);
         targetCtx.restore();
-
-        // 可以在这里绘制“手”或者“铲子”的素材，这里为了通用性保留纯图片动效
     }
 
-    // 循环预览
     function animate() {
         if (isLoaded) {
             frame = (frame + 1) % totalFrames;
             drawFrame(frame, ctx);
         }
+        const interval = Math.max(20, 160 - document.getElementById('speed').value);
         setTimeout(() => {
             requestAnimationFrame(animate);
-        }, 120 - document.getElementById('speed').value);
+        }, interval);
     }
     animate();
 
-    // 导出 GIF 的核心逻辑
+    // 【关键修复】跨域 Worker 解决方案
     async function exportGif() {
         if (!isLoaded) return alert('请先上传图片');
         
@@ -143,51 +158,52 @@
         loadingText.style.display = 'block';
         resultImg.style.display = 'none';
 
-        // 初始化 gif.js
-        // 注意：由于是单文件，我们需要 worker 的 blob 地址
-        const gif = new GIF({
-            workers: 2,
-            quality: 10,
-            width: 256,
-            height: 256,
-            workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
-        });
+        try {
+            // 获取 worker 的代码字符串并转为 Blob URL
+            const workerResponse = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js');
+            const workerCode = await workerResponse.text();
+            const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+            const workerUrl = URL.createObjectURL(workerBlob);
 
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = 256;
-        tempCanvas.height = 256;
-        const tCtx = tempCanvas.getContext('2d');
+            const gif = new GIF({
+                workers: 2,
+                quality: 5, // 降低一点质量以加快生成速度
+                width: 256,
+                height: 256,
+                workerScript: workerUrl 
+            });
 
-        // 渲染每一帧到 GIF
-        for (let i = 0; i < totalFrames; i++) {
-            drawFrame(i, tCtx, true);
-            gif.addFrame(tCtx, {copy: true, delay: 120 - document.getElementById('speed').value});
-        }
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 256;
+            tempCanvas.height = 256;
+            const tCtx = tempCanvas.getContext('2d');
 
-        gif.on('finished', function(blob) {
-            const url = URL.createObjectURL(blob);
-            
-            // 方式 1: 直接展示预览图供右键保存/复制链接
-            resultImg.src = url;
-            resultImg.style.display = 'block';
-            document.getElementById('saveHint').style.display = 'block';
-            
-            // 方式 2: 提供点击下载
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `da-chu-${Date.now()}.gif`;
-            // 不自动触发下载，让用户点击结果图或手动触发
-            
+            const frameDelay = Math.max(20, 160 - document.getElementById('speed').value);
+
+            for (let i = 0; i < totalFrames; i++) {
+                drawFrame(i, tCtx);
+                gif.addFrame(tCtx, {copy: true, delay: frameDelay});
+            }
+
+            gif.on('finished', function(blob) {
+                const url = URL.createObjectURL(blob);
+                resultImg.src = url;
+                resultImg.style.display = 'block';
+                document.getElementById('saveHint').style.display = 'block';
+                exportBtn.disabled = false;
+                loadingText.style.display = 'none';
+                URL.revokeObjectURL(workerUrl); // 释放内存
+                resultImg.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            gif.render();
+        } catch (err) {
+            console.error(err);
+            alert('生成失败，请检查网络并重试');
             exportBtn.disabled = false;
             loadingText.style.display = 'none';
-            
-            // 滚动到结果
-            resultImg.scrollIntoView({ behavior: 'smooth' });
-        });
-
-        gif.render();
+        }
     }
 </script>
-
 </body>
 </html>
